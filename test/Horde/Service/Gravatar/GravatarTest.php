@@ -10,6 +10,13 @@
  * @license   http://www.horde.org/licenses/lgpl21 LGPL 2.1
  * @package   Service_Gravatar
  */
+namespace Horde\Service\Gravatar;
+use PHPUnit\Framework\TestCase;
+use \Horde_Service_Gravatar;
+use \Horde_Support_StringStream;
+use \Horde_Http_Response_Mock;
+use \Horde_Http_Request_Mock;
+use \Horde_Http_Client;
 
 /**
  * @author    Gunnar Wrobel <wrobel@pardus.de>
@@ -18,13 +25,12 @@
  * @license   http://www.horde.org/licenses/lgpl21 LGPL 2.1
  * @package   Service_Gravatar
  */
-class Horde_Service_Gravatar_GravatarTest
-extends PHPUnit_Framework_TestCase
+class GravatarTest extends TestCase
 {
     public function testReturn()
     {
         $g = new Horde_Service_Gravatar();
-        $this->assertInternalType('string', $g->getId('test'));
+        $this->assertIsString($g->getId('test'));
     }
 
     public function testAddress()
@@ -77,6 +83,7 @@ extends PHPUnit_Framework_TestCase
      */
     public function testInvalidMail()
     {
+        $this->expectException('InvalidArgumentException');
         $g = new Horde_Service_Gravatar();
         $g->getId(0.0);
     }
@@ -136,12 +143,12 @@ extends PHPUnit_Framework_TestCase
 
     private function _getMockedGravatar($response_string)
     {
-        $response = $this->getMock('Horde_Http_Response', array('getBody'));
+        $response = $this->getMockBuilder('Horde_Http_Response')->setMethods(array('getBody'))->getMock();
         $response->expects($this->once())
             ->method('getBody')
             ->will($this->returnValue($response_string));
 
-        $mock = $this->getMock('Horde_Http_Client', array('get'));
+        $mock = $this->getMockBuilder('Horde_Http_Client')->setMethods(array('get'))->getMock();
         $mock->expects($this->once())
             ->method('get')
             ->will($this->returnValue($response));
